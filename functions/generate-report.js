@@ -33,7 +33,7 @@ const initializeGoogleDrive = () => {
 };
 
 // Initialize HubSpot
-const hubspotClient = new Client({ apiKey: process.env.HUBSPOT_API_KEY });
+// const hubspotClient = new Client({ apiKey: process.env.HUBSPOT_API_KEY });
 
 // Helper function to generate the PDF
 const generatePDF = async (html) => {
@@ -84,45 +84,45 @@ const uploadToDrive = async (buffer, fileName) => {
 };
 
 // Helper function to upload to HubSpot
-const uploadToHubSpot = async (buffer, fileName, email) => {
-  try {
-    // First, find contact by email
-    const contactsResponse = await hubspotClient.crm.contacts.basicApi.getPage(
-      undefined, undefined, undefined, undefined, undefined, undefined,
-      `email=${email}`
-    );
+// const uploadToHubSpot = async (buffer, fileName, email) => {
+//   try {
+//     // First, find contact by email
+//     const contactsResponse = await hubspotClient.crm.contacts.basicApi.getPage(
+//       undefined, undefined, undefined, undefined, undefined, undefined,
+//       `email=${email}`
+//     );
 
-    const contactId = contactsResponse.results[0]?.id;
-    if (!contactId) {
-      console.error('No contact found with email:', email);
-      return null;
-    }
+//     const contactId = contactsResponse.results[0]?.id;
+//     if (!contactId) {
+//       console.error('No contact found with email:', email);
+//       return null;
+//     }
 
-    // Create a file in HubSpot
-    const fileResponse = await hubspotClient.files.filesApi.upload({
-      file: buffer,
-      fileName: fileName,
-      options: {
-        access: 'PRIVATE',
-        overwrite: true,
-      },
-    });
+//     // Create a file in HubSpot
+//     const fileResponse = await hubspotClient.files.filesApi.upload({
+//       file: buffer,
+//       fileName: fileName,
+//       options: {
+//         access: 'PRIVATE',
+//         overwrite: true,
+//       },
+//     });
 
-    // Associate file with contact
-    await hubspotClient.crm.contacts.associationsApi.create(
-      contactId,
-      'FILE',
-      fileResponse.id
-    );
+//     // Associate file with contact
+//     await hubspotClient.crm.contacts.associationsApi.create(
+//       contactId,
+//       'FILE',
+//       fileResponse.id
+//     );
 
-    return {
-      fileId: fileResponse.id,
-    };
-  } catch (error) {
-    console.error('Error uploading to HubSpot:', error);
-    return null;
-  }
-};
+//     return {
+//       fileId: fileResponse.id,
+//     };
+//   } catch (error) {
+//     console.error('Error uploading to HubSpot:', error);
+//     return null;
+//   }
+// };
 
 // The main function handler
 exports.handler = async (event, context) => {
@@ -252,7 +252,7 @@ exports.handler = async (event, context) => {
     console.log(reportHTML);
     
     // Generate the PDF
-    const pdfBuffer = await generatePDF(reportHTML);
+    // const pdfBuffer = await generatePDF(reportHTML);
 
     // const localFilePath = path.join(__dirname, `${name.replace(/\s+/g, '_')}_Value_Add_Report.pdf`);
     // fs.writeFileSync(localFilePath, pdfBuffer);
@@ -284,7 +284,7 @@ exports.handler = async (event, context) => {
         // driveLink: driveResult?.webViewLink || null,
         // hubspotFileId: hubspotResult?.fileId || null,
         // Include base64 PDF for direct download if needed
-        base64PDF: pdfBuffer.toString('base64'),
+        // base64PDF: pdfBuffer.toString('base64'),
       }),
     };
 
