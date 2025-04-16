@@ -493,7 +493,6 @@ exports.handler = async (event, context) => {
 
     // const localFilePath = path.join(__dirname, `${name.replace(/\s+/g, '_')}_Value_Add_Report.pdf`);
     // fs.writeFileSync(localFilePath, pdfBuffer);
-    // console.log(`PDF saved locally at: ${localFilePath}`);
 
     // Generate a unique filename
     const timestamp = new Date().getTime();
