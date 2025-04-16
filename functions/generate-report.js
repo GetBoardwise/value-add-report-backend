@@ -503,7 +503,7 @@ exports.handler = async (event, context) => {
     const fileName = `${name.replace(/\s+/g, '_')}_Value_Add_Report_${timestamp}.pdf`;
 
     // Upload to Google Drive
-    const driveResult = await uploadToDrive(pdfBuffer, fileName);
+    // const driveResult = await uploadToDrive(pdfBuffer, fileName);
 
     // // Upload to HubSpot
     // const hubspotResult = await uploadToHubSpot(pdfBuffer, fileName, email);
@@ -518,10 +518,10 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({
         message: 'Report generated successfully',
         fileName: fileName,
-        driveLink: driveResult?.webViewLink || null,
+        // driveLink: driveResult?.webViewLink || null,
         // hubspotFileId: hubspotResult?.fileId || null,
         // Include base64 PDF for direct download if needed
-        // base64PDF: pdfBuffer.toString('base64'),
+        base64PDF: pdfBuffer.toString('base64'),
       }),
     };
 
