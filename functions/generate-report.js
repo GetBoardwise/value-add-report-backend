@@ -254,19 +254,20 @@ exports.handler = async (event, context) => {
     // Generate the PDF
     const pdfBuffer = await generatePDF(reportHTML);
 
-    const localFilePath = path.join(__dirname, `${name.replace(/\s+/g, '_')}_Value_Add_Report.pdf`);
-    fs.writeFileSync(localFilePath, pdfBuffer);
-    console.log(`PDF saved locally at: ${localFilePath}`);
-
+    // const localFilePath = path.join(__dirname, `${name.replace(/\s+/g, '_')}_Value_Add_Report.pdf`);
+    // fs.writeFileSync(localFilePath, pdfBuffer);
+    console.log(`PDF saved locally at`);
     // Generate a unique filename
     const timestamp = new Date().getTime();
     const fileName = `${name.replace(/\s+/g, '_')}_Value_Add_Report_${timestamp}.pdf`;
 
-    // Upload to Google Drive
-    const driveResult = await uploadToDrive(pdfBuffer, fileName);
+    // // Upload to Google Drive
+    // const driveResult = await uploadToDrive(pdfBuffer, fileName);
 
-    // Upload to HubSpot
-    const hubspotResult = await uploadToHubSpot(pdfBuffer, fileName, email);
+    console.log("erewr");
+    
+    // // Upload to HubSpot
+    // const hubspotResult = await uploadToHubSpot(pdfBuffer, fileName, email);
 
     // Return success response
     return {
@@ -279,8 +280,8 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({
         message: 'Report generated successfully',
         fileName: fileName,
-        driveLink: driveResult?.webViewLink || null,
-        hubspotFileId: hubspotResult?.fileId || null,
+        // driveLink: driveResult?.webViewLink || null,
+        // hubspotFileId: hubspotResult?.fileId || null,
         // Include base64 PDF for direct download if needed
         base64PDF: pdfBuffer.toString('base64'),
       }),
