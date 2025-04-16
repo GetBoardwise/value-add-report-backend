@@ -1,9 +1,9 @@
 const { ChatGPTAPI } = require('chatgpt');
-const { google } = require('googleapis');
-const { Client } = require('@hubspot/api-client');
-const html_to_pdf = require('html-pdf-node');
-const fs = require('fs');
-const path = require('path');
+// const { google } = require('googleapis');
+// const { Client } = require('@hubspot/api-client');
+// const html_to_pdf = require('html-pdf-node');
+// const fs = require('fs');
+// const path = require('path');
 
 // Environment variables to be set in Netlify
 // OPENAI_API_KEY: Your OpenAI API key
@@ -36,20 +36,20 @@ const initializeGoogleDrive = () => {
 // const hubspotClient = new Client({ apiKey: process.env.HUBSPOT_API_KEY });
 
 // Helper function to generate the PDF
-const generatePDF = async (html) => {
-  const options = { format: 'A4' };
-  const file = { content: html };
+// const generatePDF = async (html) => {
+//   const options = { format: 'A4' };
+//   const file = { content: html };
 
-  return new Promise((resolve, reject) => {
-    html_to_pdf.generatePdf(file, options)
-      .then(buffer => {
-        resolve(buffer);
-      })
-      .catch(error => {
-        reject(error);
-      });
-  });
-};
+//   return new Promise((resolve, reject) => {
+//     html_to_pdf.generatePdf(file, options)
+//       .then(buffer => {
+//         resolve(buffer);
+//       })
+//       .catch(error => {
+//         reject(error);
+//       });
+//   });
+// };
 
 // Helper function to upload to Google Drive
 const uploadToDrive = async (buffer, fileName) => {
