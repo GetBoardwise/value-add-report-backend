@@ -1,3 +1,8 @@
-"dependencies": {
-  "html-pdf-node": "^1.0.0"
+{
+  "name": "value-add-report-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "html-pdf-node": "^1.0.0"
+  }
 }
