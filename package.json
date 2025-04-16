@@ -1,6 +1,23 @@
 {
-  "type": "module",
+  "name": "value-add-report-generator",
+  "version": "1.0.0",
+  "description": "Netlify Function to generate value-add reports using ChatGPT",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "netlify",
+    "pdf",
+    "chatgpt",
+    "report"
+  ],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "html-pdf-node": "^1.0.0"
+    "@hubspot/api-client": "^8.9.0",
+    "chatgpt": "^5.2.5",
+    "googleapis": "^128.0.0",
+    "html-pdf-node": "^1.0.8"
   }
 }
