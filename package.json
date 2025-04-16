@@ -1,0 +1,9 @@
+{
+  "name": "value-add-report-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@sparticuz/chromium-min": "^112.0.0",
+    "puppeteer-core": "^20.5.1"
+  }
+}
