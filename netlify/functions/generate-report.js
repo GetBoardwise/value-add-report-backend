@@ -4,19 +4,21 @@ export async function handler(event) {
   const body = JSON.parse(event.body || '{}');
   const name = body.name || 'Unknown';
   const linkedin = body.linkedin || 'No LinkedIn URL provided';
+  const email = body.email || 'No email provided';
 
-  const htmlContent = `
+  const html = `
     <html>
       <head>
         <style>
           body {
-            font-family: Arial;
+            font-family: Arial, sans-serif;
+            padding: 40px;
             background: #0c1e2c;
             color: #ffffff;
-            padding: 40px;
           }
           h1 {
             font-size: 32px;
+            color: #ffffff;
             margin-bottom: 10px;
           }
           p {
@@ -25,24 +27,33 @@ export async function handler(event) {
         </style>
       </head>
       <body>
-        <h1>Value Add Report for ${name}</h1>
+        <h1>Value-Add Report</h1>
+        <p><strong>Name:</strong> ${name}</p>
         <p><strong>LinkedIn:</strong> ${linkedin}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p>This is a test report generated via Netlify serverless function.</p>
       </body>
     </html>
   `;
 
+  const file = { content: html };
   const options = { format: 'A4' };
-  const file = { content: htmlContent };
 
-  const pdfBuffer = await pdf.generatePdf(file, options);
-
-  return {
-    statusCode: 200,
-    headers: {
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="${name}-value-add-report.pdf"`
-    },
-    body: pdfBuffer.toString('base64'),
-    isBase64Encoded: true
-  };
+  try {
+    const pdfBuffer = await pdf.generatePdf(file, options);
+    return {
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': 'attachment; filename="value-add-report.pdf"'
+      },
+      body: pdfBuffer.toString('base64'),
+      isBase64Encoded: true
+    };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: error.message || 'PDF generation failed' })
+    };
+  }
 }
