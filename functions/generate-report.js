@@ -1,9 +1,9 @@
 const { ChatGPTAPI } = require('chatgpt');
-// const { google } = require('googleapis');
+const { google } = require('googleapis');
 // const { Client } = require('@hubspot/api-client');
 // const html_to_pdf = require('html-pdf-node');
-// const fs = require('fs');
-// const path = require('path');
+const fs = require('fs');
+const path = require('path');
 
 // Environment variables to be set in Netlify
 // OPENAI_API_KEY: Your OpenAI API key

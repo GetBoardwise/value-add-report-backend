@@ -16,6 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "@hubspot/api-client": "^8.9.0",
-    "chatgpt": "^5.2.5"
+    "chatgpt": "^5.2.5",
+    "googleapis": "^148.0.0"
   }
 }
