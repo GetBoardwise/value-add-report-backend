@@ -414,7 +414,7 @@ const generateReportContent = async (name, email, linkedinURL) => {
     const response = await axios.post(
       'https://api.openai.com/v1/chat/completions',
       {
-        model: 'gpt-4',
+        model: 'o4-mini',
         messages: [
           {
             role: 'system',
@@ -433,8 +433,7 @@ const generateReportContent = async (name, email, linkedinURL) => {
             Format the report with clear section titles followed by professional, insightful content.`
           }
         ],
-        temperature: 0.7,
-        max_tokens: 1500
+        max_completion_tokens: 1500
       },
       {
         headers: {
@@ -488,8 +487,6 @@ exports.handler = async (event, context) => {
 
     const chatGptResponse = "await chatGptApi.sendMessage(prompt)";
     let content = await generateReportContent(name, email, linkedinURL)
-
-    console.log(chatGptResponse);
 
     // Generate the PDF
     const pdfBuffer = await generatePDF(name, email, content);
