@@ -1,9 +1,3 @@
-{
-  "name": "value-add-report-backend",
-  "version": "1.0.0",
-  "type": "module",
-  "dependencies": {
-    "@sparticuz/chromium": "^112.0.0",
-    "puppeteer-core": "^20.5.1"
-  }
+"dependencies": {
+  "html-pdf-node": "^1.0.0"
 }
