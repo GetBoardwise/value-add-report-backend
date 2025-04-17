@@ -159,7 +159,7 @@ exports.handler = async (event, context) => {
           driveLink: driveResult?.webViewLink || null,
           // hubspotFileId: hubspotResult?.fileId || null,
           // Include base64 PDF for direct download if needed
-          base64PDF: pdfBuffer.toString('base64'),
+          base64PDF: pdfBuffer.base64.toString('base64'),
         }),
       };
     } else {
@@ -172,7 +172,7 @@ exports.handler = async (event, context) => {
         },
         body: JSON.stringify({
           message: 'Error generating report',
-          error: "Error"
+          error: pdfBuffer.error
         }),
       };
     }
