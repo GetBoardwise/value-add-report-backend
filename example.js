@@ -27,7 +27,7 @@ async function generateCompleteReport(name, email, linkedinURL, logoPath, output
 
         // // Step 3: Save the PDF to the specified path
         console.log(`Saving PDF to ${outputPath}...`);
-        fs.writeFileSync(outputPath, pdfBuffer);
+        // fs.writeFileSync(outputPath, pdfBuffer);
 
         console.log('Report generation complete!');
         return { success: true, path: '', base64: pdfBuffer };
