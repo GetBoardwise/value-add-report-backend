@@ -69,20 +69,12 @@ const uploadToDrive = async (buffer, fileName) => {
   }
 };
 
-const uploadToHubSpot = async (buffer, fileName, email) => {
+const uploadToHubSpot = async (buffer, fileName, email, name) => {
   try {
     // Initialize HubSpot client
     const hubspotClient = new Client({ accessToken: process.env.HUBSPOT_API_KEY });
 
     console.log(`Starting HubSpot upload for ${email}`);
-
-    // return await hubspotClient.crm.contacts.basicApi.update("260896528632", {
-    //   properties: {
-    //     report_download_link: "https://api-eu1.hubspot.com/filemanager/api/v2/files/228987602122/signed-url-redirect?portalId=25911622"
-    //   }
-    // });
-
-
     // Find contact by email using the search API
     console.log(`Searching for contact with email: ${email}`);
     const searchResponse = await hubspotClient.crm.contacts.searchApi.doSearch({
@@ -109,8 +101,8 @@ const uploadToHubSpot = async (buffer, fileName, email) => {
       const newContact = await hubspotClient.crm.contacts.basicApi.create({
         properties: {
           email: email,
-          firstname: fileName.split('-')[0] || 'New',
-          lastname: fileName.split('-')[1] || 'Contact'
+          firstname: name?.split(' ')[0] || 'New',
+          lastname: name?.split(' ').slice(1).join(' ') || 'Contact',
         }
       });
 
@@ -217,7 +209,7 @@ exports.handler = async (event, context) => {
       const driveResult = await uploadToDrive(pdfBuffer.base64, fileName);
 
       // // Upload to HubSpot
-      const hubspotResult = await uploadToHubSpot(pdfBuffer.base64, fileName, email);
+      const hubspotResult = await uploadToHubSpot(pdfBuffer.base64, fileName, email, name);
       return {
         statusCode: 200,
         headers: {
