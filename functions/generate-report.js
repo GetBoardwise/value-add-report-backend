@@ -134,7 +134,7 @@ exports.handler = async (event, context) => {
       };
     }
 
-    let pdfBuffer = await generateCompleteReport(name, email, linkedinURL, 'getboardwise-logo.jpeg', 'file.pdf', process.env.OPENAI_API_KEY)
+    let pdfBuffer = await generateCompleteReport(name, email, linkedinURL, 'getboardwise-logo.png', 'file.pdf', process.env.OPENAI_API_KEY)
 
     if (pdfBuffer.success) {
       // Generate a unique filename

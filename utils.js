@@ -167,14 +167,14 @@ const generatePDF = async (name, email, reportText, logoPath) => {
 
         // Parse sections from the report text
         const sections = [
-            'Key Commercial Strengths',
-            'Potential Markets & Sectors to Target',
-            'Ideal Company Profile',
-            'Where You Can Add Value',
-            'Example Outreach Message',
-            'LinkedIn Profile Feedback',
-            'Your Potential Impact',
-            'Final Thoughts'
+            '1. Key Commercial Strengths',
+            '2. Potential Markets & Sectors to Target',
+            '3. Ideal Company Profile',
+            '4. Where You Can Add Value',
+            '5. Example Outreach Message',
+            '6. LinkedIn Profile Feedback',
+            '7. Your Potential Impact',
+            '8. Final Thoughts'
         ];
 
         // Extract introduction content (everything before the first section)
