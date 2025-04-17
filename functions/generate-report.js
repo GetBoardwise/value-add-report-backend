@@ -3,6 +3,9 @@ const { Readable } = require('stream');
 
 const { Client } = require('@hubspot/api-client');
 const { generateCompleteReport } = require('../example');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
 
 // Initialize Google Drive
 const initializeGoogleDrive = () => {
@@ -33,9 +36,6 @@ const initializeGoogleDrive = () => {
     return null;
   }
 };
-
-// Initialize HubSpot
-const hubspotClient = new Client({ apiKey: process.env.HUBSPOT_API_KEY });
 
 // Helper function to upload to Google Drive
 const uploadToDrive = async (buffer, fileName) => {
@@ -69,43 +69,115 @@ const uploadToDrive = async (buffer, fileName) => {
   }
 };
 
-// Helper function to upload to HubSpot
 const uploadToHubSpot = async (buffer, fileName, email) => {
   try {
-    // First, find contact by email
-    const contactsResponse = await hubspotClient.crm.contacts.basicApi.getPage(
-      undefined, undefined, undefined, undefined, undefined, undefined,
-      `email=${email}`
-    );
+    // Initialize HubSpot client
+    const hubspotClient = new Client({ accessToken: process.env.HUBSPOT_API_KEY });
 
-    const contactId = contactsResponse.results[0]?.id;
-    if (!contactId) {
-      console.error('No contact found with email:', email);
-      return null;
-    }
+    console.log(`Starting HubSpot upload for ${email}`);
 
-    // Create a file in HubSpot
-    const fileResponse = await hubspotClient.files.filesApi.upload({
-      file: buffer,
-      fileName: fileName,
-      options: {
-        access: 'PRIVATE',
-        overwrite: true,
-      },
+    // return await hubspotClient.crm.contacts.basicApi.update("260896528632", {
+    //   properties: {
+    //     report_download_link: "https://api-eu1.hubspot.com/filemanager/api/v2/files/228987602122/signed-url-redirect?portalId=25911622"
+    //   }
+    // });
+
+
+    // Find contact by email using the search API
+    console.log(`Searching for contact with email: ${email}`);
+    const searchResponse = await hubspotClient.crm.contacts.searchApi.doSearch({
+      filterGroups: [
+        {
+          filters: [
+            {
+              propertyName: "email",
+              operator: "EQ",
+              value: email
+            }
+          ]
+        }
+      ]
     });
 
-    // Associate file with contact
-    await hubspotClient.crm.contacts.associationsApi.create(
-      contactId,
-      'FILE',
-      fileResponse.id
+    console.log(`Search results:`, JSON.stringify(searchResponse, null, 2));
+
+    if (!searchResponse.results || searchResponse.results.length === 0) {
+      console.error('No contact found with email:', email);
+      console.log('Creating new contact...');
+
+      // Create a new contact if none exists
+      const newContact = await hubspotClient.crm.contacts.basicApi.create({
+        properties: {
+          email: email,
+          firstname: fileName.split('-')[0] || 'New',
+          lastname: fileName.split('-')[1] || 'Contact'
+        }
+      });
+
+      console.log('New contact created:', JSON.stringify(newContact, null, 2));
+      var contactId = newContact.id;
+    } else {
+      var contactId = searchResponse.results[0].id;
+      console.log(`Found contact with ID: ${contactId}`);
+    }
+
+    // Upload the file
+    console.log('Uploading file to HubSpot...');
+
+    const tempPath = path.join(os.tmpdir(), fileName);
+    fs.writeFileSync(tempPath, buffer);
+
+    const fileStream = fs.createReadStream(tempPath);
+
+
+    const fileResponse = await hubspotClient.files.filesApi.upload(
+      {
+        data: fileStream,
+        name: fileName,
+      },
+      undefined, // folderId
+      '/reports', // folderPath (it'll be created if it doesn't exist)
+      fileName,
+      undefined,
+      JSON.stringify({
+        access: 'PRIVATE',
+        overwrite: false,
+        duplicateValidationStrategy: 'NONE',
+        duplicateValidationScope: 'ENTIRE_PORTAL',
+      })
     );
+
+
+    console.log('File uploaded successfully:', JSON.stringify(fileResponse, null, 2));
+
+    fs.unlinkSync(tempPath);
+    // Associate file with contact
+    console.log(`Associating file ${fileResponse.id} with contact ${contactId}`);
+    await hubspotClient.crm.contacts.basicApi.update(contactId, {
+      properties: {
+        report_download_link: fileResponse.url,
+      }
+    });
+
+    console.log('File associated with contact successfully');
 
     return {
       fileId: fileResponse.id,
+      contactId: contactId,
+      fileUrl: fileResponse.url
     };
   } catch (error) {
-    console.error('Error uploading to HubSpot:', error);
+    console.error('Error uploading to HubSpot:', error.message);
+
+    // Log more details about the error
+    if (error.response) {
+      console.error('Error response:', JSON.stringify({
+        status: error.response.status,
+        headers: error.response.headers,
+        data: error.response.data
+      }, null, 2));
+    }
+
     return null;
   }
 };
@@ -145,7 +217,7 @@ exports.handler = async (event, context) => {
       const driveResult = await uploadToDrive(pdfBuffer.base64, fileName);
 
       // // Upload to HubSpot
-      // const hubspotResult = await uploadToHubSpot(pdfBuffer, fileName, email);
+      const hubspotResult = await uploadToHubSpot(pdfBuffer.base64, fileName, email);
       return {
         statusCode: 200,
         headers: {
@@ -157,9 +229,9 @@ exports.handler = async (event, context) => {
           message: 'Report generated successfully',
           fileName: fileName,
           driveLink: driveResult?.webViewLink || null,
-          // hubspotFileId: hubspotResult?.fileId || null,
+          hubspotFileId: hubspotResult?.fileId || null,
           // Include base64 PDF for direct download if needed
-          base64PDF: pdfBuffer.base64.toString('base64'),
+          // base64PDF: pdfBuffer.base64.toString('base64'),
         }),
       };
     } else {
