@@ -11,13 +11,13 @@ const path = require('path');
  * @param {string} logoPath - Path to the GetBoardwise logo
  * @param {string} outputPath - Where to save the generated PDF
  */
-async function generateCompleteReport(name, email, linkedinURL, logoPath, outputPath, apiKey) {
+async function generateCompleteReport(name, email, linkedinURL, logoPath, outputPath, apiKey, parsedData) {
     try {
         console.log(`Generating report for ${name}...`);
 
         // Step 1: Generate the report content
         console.log('Generating report content...');
-        const content = await generateReportContent(name, email, linkedinURL, apiKey);
+        const content = await generateReportContent(name, email, parsedData, apiKey);
         console.log(content);
         
 

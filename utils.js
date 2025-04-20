@@ -46,14 +46,10 @@ async function generateAndSavePDF(name, email, linkedinURL, logoPath, apiKey, ou
  * @param {string} apiKey - OpenAI API key
  * @returns {Promise<string>} - Report content text
  */
-async function generateReportContent(name, email, linkedinURL, apiKey) {
+async function generateReportContent(name, email, resumeText, apiKey) {
     try {
         console.log("Calling OpenAI API...");
-
-        // Instead of calling OpenAI, let's use hardcoded content for testing
-        // Comment this out and uncomment the API call for production use
-        // return generateHardcodedContent(name);
-
+        
         const response = await axios.post(
           'https://api.openai.com/v1/chat/completions',
           {
@@ -84,7 +80,7 @@ async function generateReportContent(name, email, linkedinURL, apiKey) {
               },
               {
                 role: 'user',
-                content: `Generate a value-add report for ${name} with email ${email} and LinkedIn profile ${linkedinURL}. 
+                content: `Generate a value-add report for ${name} with email ${email} based on their resume information: ${resumeText}
             
             The report should start with a personalized introduction addressing the client by name.
             

@@ -6,6 +6,7 @@ const { generateCompleteReport } = require('../example');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const { parseResumeFromUrl } = require('../parser');
 
 // Initialize Google Drive
 const initializeGoogleDrive = () => {
@@ -69,49 +70,49 @@ const uploadToDrive = async (buffer, fileName) => {
   }
 };
 
-const uploadToHubSpot = async (buffer, fileName, email, name) => {
+const uploadToHubSpot = async (buffer, fileName, email, name, contactId) => {
   try {
     // Initialize HubSpot client
     const hubspotClient = new Client({ accessToken: process.env.HUBSPOT_API_KEY });
 
     console.log(`Starting HubSpot upload for ${email}`);
     // Find contact by email using the search API
-    console.log(`Searching for contact with email: ${email}`);
-    const searchResponse = await hubspotClient.crm.contacts.searchApi.doSearch({
-      filterGroups: [
-        {
-          filters: [
-            {
-              propertyName: "email",
-              operator: "EQ",
-              value: email
-            }
-          ]
-        }
-      ]
-    });
+    // console.log(`Searching for contact with email: ${email}`);
+    // const searchResponse = await hubspotClient.crm.contacts.searchApi.doSearch({
+    //   filterGroups: [
+    //     {
+    //       filters: [
+    //         {
+    //           propertyName: "email",
+    //           operator: "EQ",
+    //           value: email
+    //         }
+    //       ]
+    //     }
+    //   ]
+    // });
 
-    console.log(`Search results:`, JSON.stringify(searchResponse, null, 2));
+    // console.log(`Search results:`, JSON.stringify(searchResponse, null, 2));
 
-    if (!searchResponse.results || searchResponse.results.length === 0) {
-      console.error('No contact found with email:', email);
-      console.log('Creating new contact...');
+    // if (!searchResponse.results || searchResponse.results.length === 0) {
+    //   console.error('No contact found with email:', email);
+    //   console.log('Creating new contact...');
 
-      // Create a new contact if none exists
-      const newContact = await hubspotClient.crm.contacts.basicApi.create({
-        properties: {
-          email: email,
-          firstname: name?.split(' ')[0] || 'New',
-          lastname: name?.split(' ').slice(1).join(' ') || 'Contact',
-        }
-      });
+    //   // Create a new contact if none exists
+    //   const newContact = await hubspotClient.crm.contacts.basicApi.create({
+    //     properties: {
+    //       email: email,
+    //       firstname: name?.split(' ')[0] || 'New',
+    //       lastname: name?.split(' ').slice(1).join(' ') || 'Contact',
+    //     }
+    //   });
 
-      console.log('New contact created:', JSON.stringify(newContact, null, 2));
-      var contactId = newContact.id;
-    } else {
-      var contactId = searchResponse.results[0].id;
-      console.log(`Found contact with ID: ${contactId}`);
-    }
+    //   console.log('New contact created:', JSON.stringify(newContact, null, 2));
+    //   var contactId = newContact.id;
+    // } else {
+    //   var contactId = searchResponse.results[0].id;
+    //   console.log(`Found contact with ID: ${contactId}`);
+    // }
 
     // Upload the file
     console.log('Uploading file to HubSpot...');
@@ -189,16 +190,18 @@ exports.handler = async (event, context) => {
     const requestBody = JSON.parse(event.body);
 
     // Extract data from the request
-    const { name, email, linkedinURL = "https://linkedin.com/5345/534" } = requestBody;
+    const { name, email, linkedinURL = "https://linkedin.com/5345/534", url, contactId } = requestBody;
 
-    if (!name || !email || !linkedinURL) {
+    if (!name || !email || !linkedinURL || !url || !contactId) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ message: 'Missing required fields: name, email, linkedinURL' }),
+        body: JSON.stringify({ message: 'Missing required fields: name, email, linkedinURL, url, contactId' }),
       };
     }
 
-    let pdfBuffer = await generateCompleteReport(name, email, linkedinURL, 'getboardwise-logo.png', 'file.pdf', process.env.OPENAI_API_KEY)
+    let extractedPdf = await parseResumeFromUrl(url);
+
+    let pdfBuffer = await generateCompleteReport(name, email, linkedinURL, 'getboardwise-logo.png', 'file.pdf', process.env.OPENAI_API_KEY, extractedPdf.rawText);
 
     if (pdfBuffer.success) {
       // Generate a unique filename
@@ -209,7 +212,7 @@ exports.handler = async (event, context) => {
       const driveResult = await uploadToDrive(pdfBuffer.base64, fileName);
 
       // // Upload to HubSpot
-      const hubspotResult = await uploadToHubSpot(pdfBuffer.base64, fileName, email, name);
+      const hubspotResult = await uploadToHubSpot(pdfBuffer.base64, fileName, email, name, contactId);
       return {
         statusCode: 200,
         headers: {
