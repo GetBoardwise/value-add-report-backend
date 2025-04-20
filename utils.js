@@ -179,7 +179,7 @@ function processApiResponse(content) {
 
     // Replace any remaining non-ASCII characters
     result = result.normalize('NFKD')
-        .replace(/[^\x00-\x7F]/g, '?');
+        .replace(/[^\x00-\x7F]/g, '')
 
     return result;
 }
